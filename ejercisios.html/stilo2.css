@@ -1,0 +1,18 @@
+.container{
+    background-color: coral;
+    width: 100px;
+    height: 50px;
+    display: flexbox;
+}
+.container2{
+    background-color: cornflowerblue;
+    width: 150px;
+    height: 40px;
+    display: flexbox;
+}
+.container3{
+    background-color: darkseagreen;
+    width: 80px;
+    height: 25px;
+    display: flexbox;
+}

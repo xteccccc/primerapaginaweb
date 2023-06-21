@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ejercicio 8</title>
+  <style>
+    /* Estilos CSS para centrar el formulario */
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    form {
+      max-width: 400px;
+      width: 100%;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    .error-message {
+      color: red;
+      font-size: 12px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <form id="formulario">
+    <label for="correo">Correo Electrónico:</label>
+    <input type="email" id="correo" name="correo" required>
+    <div id="correo-error" class="error-message"></div>
+
+    <label for="edad">Edad:</label>
+    <input type="number" id="edad" name="edad" required>
+    <div id="edad-error" class="error-message"></div>
+
+    <label for="tipo-empleado">Tipo de Empleado:</label>
+    <select id="tipo-empleado" name="tipo-empleado" required>
+      <option value="">Seleccione...</option>
+      <option value="vendedor">Vendedor</option>
+      <option value="encargado">Encargado de turno</option>
+      <option value="supervisor">Supervisor general</option>
+    </select>
+    <div id="tipo-empleado-error" class="error-message"></div>
+
+    <div id="campos-vendedor" style="display: none;">
+      <label for="ventas">Cantidad de Ventas:</label>
+      <input type="number" id="ventas" name="ventas" min="1">
+      <div id="ventas-error" class="error-message"></div>
+
+      <label for="monto-vendido">Monto Total Vendido:</label>
+      <input type="number" id="monto-vendido" name="monto-vendido" min="0" step="0.01">
+      <div id="monto-vendido-error" class="error-message"></div>
+    </div>
+
+    <div id="campos-encargado" style="display: none;">
+      <label for="empleados-cargo">Cantidad de Empleados a Cargo:</label>
+      <input type="number" id="empleados-cargo" name="empleados-cargo" min="5">
+      <div id="empleados-cargo-error" class="error-message"></div>
+    </div>
+
+    <div id="campos-supervisor" style="display: none;">
+      <label for="locales-administrados">Cantidad de Locales Administrados:</label>
+      <input type="number" id="locales-administrados" name="locales-administrados" min="2">
+      <div id="locales-administrados-error" class="error-message"></div>
+
+      <label for="descripcion-desempeno">Descripción del Desempeño General:</label>
+      <textarea id="descripcion-desempeno" name="descripcion-desempeno" rows="4"></textarea>
+      <div id="descripcion-desempeno-error" class="error-message"></div>
+    </div>
+
+    <fieldset>
+      <legend>Turno:</legend>
+      <label for="turno-manana">
+        <input type="radio" id="turno-manana" name="turno" value="manana" required> Mañana
+      </label>
+      <label for="turno-tarde">
+        <input type="radio" id="turno-tarde" name="turno" value="tarde"> Tarde
+      </label>
+    </fieldset>
+
+    <label for="color-favorito">Color Favorito:</label>
+    <input type="text" id="color-favorito" name="color-favorito" list="colores-favoritos">
+    <datalist id="colores-favoritos">
+      <option value="amarillo">
+      <option value="azul">
+      <option value="rojo">
+      <option value="verde">
+      <option value="naranja">
+      <option value="violeta">
+      <option value="blanco">
+      <option value="negro">
+    </datalist>
+
+    <div id="submit-error" class="error-message"></div>
+    <button type="submit" id="submit" disabled>Enviar</button>
+  </form>
+
+  <table id="tabla-datos" style="margin-top: 20px; display: none;">
+    <thead>
+      <tr>
+        <th>Correo Electrónico</th>
+        <th>Edad</th>
+        <th>Tipo de Empleado</th>
+        <th>Otros Datos</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const formulario = document.getElementById('formulario');
+    const correoInput = document.getElementById('correo');
+    const edadInput = document.getElementById('edad');
+    const tipoEmpleadoInput = document.getElementById('tipo-empleado');
+    const camposVendedor = document.getElementById('campos-vendedor');
+    const ventasInput = document.getElementById('ventas');
+    const montoVendidoInput = document.getElementById('monto-vendido');
+    const camposEncargado = document.getElementById('campos-encargado');
+    const empleadosCargoInput = document.getElementById('empleados-cargo');
+    const camposSupervisor = document.getElementById('campos-supervisor');
+    const localesAdministradosInput = document.getElementById('locales-administrados');
+    const descripcionDesempenoInput = document.getElementById('descripcion-desempeno');
+    const submitButton = document.getElementById('submit');
+    const tablaDatos = document.getElementById('tabla-datos');
+    const tablaDatosBody = tablaDatos.querySelector('tbody');
+
+    correoInput.addEventListener('input', validarCorreo);
+    edadInput.addEventListener('input', validarEdad);
+    tipoEmpleadoInput.addEventListener('change', mostrarCamposSegunTipoEmpleado);
+    formulario.addEventListener('submit', guardarDatos);
+
+    function validarCorreo() {
+      const correo = correoInput.value;
+      const correoRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+
+      if (correoRegex.test(correo)) {
+        mostrarError(correoInput, '');
+      } else {
+        mostrarError(correoInput, 'El correo electrónico no es válido');
+      }
+    }
+
+    function validarEdad() {
+      const edad = parseInt(edadInput.value);
+
+      if (edad > 0) {
+        mostrarError(edadInput, '');
+      } else {
+        mostrarError(edadInput, 'La edad debe ser un número mayor a 0');
+      }
+    }
+
+    function mostrarCamposSegunTipoEmpleado() {
+      const tipoEmpleado = tipoEmpleadoInput.value;
+
+      if (tipoEmpleado === 'vendedor') {
+        camposVendedor.style.display = 'block';
+        camposEncargado.style.display = 'none';
+        camposSupervisor.style.display = 'none';
+        validarVentas();
+        validarMontoVendido();
+      } else if (tipoEmpleado === 'encargado') {
+        camposVendedor.style.display = 'none';
+        camposEncargado.style.display = 'block';
+        camposSupervisor.style.display = 'none';
+        validarEmpleadosCargo();
+      } else if (tipoEmpleado === 'supervisor') {
+        camposVendedor.style.display = 'none';
+        camposEncargado.style.display = 'none';
+        camposSupervisor.style.display = 'block';
+        validarLocalesAdministrados();
+        validarDescripcionDesempeno();
+      } else {
+        camposVendedor.style.display = 'none';
+        camposEncargado.style.display = 'none';
+        camposSupervisor.style.display = 'none';
+      }
+
+      validarTipoEmpleado();
+    }
+
+    function validarVentas() {
+      const ventas = parseInt(ventasInput.value);
+
+      if (ventas > 0) {
+        mostrarError(ventasInput, '');
+      } else {
+        mostrarError(ventasInput, 'La cantidad de ventas debe ser mayor a 0');
+      }
+    }
+
+    function validarMontoVendido() {
+      const montoVendido = parseFloat(montoVendidoInput.value);
+
+      if (!isNaN(montoVendido) && montoVendido > 0) {
+        mostrarError(montoVendidoInput, '');
+      } else {
+        mostrarError(montoVendidoInput, 'El monto total vendido debe ser mayor a 0');
+      }
+    }
+
+    function validarEmpleadosCargo() {
+      const empleadosCargo = parseInt(empleadosCargoInput.value);
+
+      if (empleadosCargo >= 5) {
+        mostrarError(empleadosCargoInput, '');
+      } else {
+        mostrarError(empleadosCargoInput, 'La cantidad de empleados a cargo debe ser igual o mayor a 5');
+      }
+    }
+
+    function validarLocalesAdministrados() {
+      const localesAdministrados = parseInt(localesAdministradosInput.value);
+
+      if (localesAdministrados >= 2) {
+        mostrarError(localesAdministradosInput, '');
+      } else {
+        mostrarError(localesAdministradosInput, 'La cantidad de locales administrados debe ser igual o mayor a 2');
+      }
+    }
+
+    function validarDescripcionDesempeno() {
+      const descripcionDesempeno = descripcionDesempenoInput.value;
+      const palabras = descripcionDesempeno.split(' ').filter(palabra => palabra.trim() !== '');
+
+      if (palabras.length >= 5) {
+        mostrarError(descripcionDesempenoInput, '');
+      } else {
+        mostrarError(descripcionDesempenoInput, 'Debe completar la descripción del desempeño general con al menos 5 palabras');
+      }
+    }
+
+    function validarTipoEmpleado() {
+      const tipoEmpleado = tipoEmpleadoInput.value;
+
+      if (tipoEmpleado === '') {
+        mostrarError(tipoEmpleadoInput, 'Debe seleccionar un tipo de empleado');
+      } else {
+        mostrarError(tipoEmpleadoInput, '');
+      }
+    }
+
+    function mostrarError(input, mensaje) {
+      const errorDiv = document.getElementById(input.id + '-error');
+      errorDiv.textContent = mensaje;
+    }
+
+    function guardarDatos(event) {
+      event.preventDefault();
+
+      const correo = correoInput.value;
+      const edad = parseInt(edadInput.value);
+      const tipoEmpleado = tipoEmpleadoInput.value;
+      const otrosDatos = obtenerOtrosDatosSegunTipoEmpleado(tipoEmpleado);
+
+      const filaExistente = Array.from(tablaDatosBody.children).find(fila => {
+        const correoTd = fila.querySelector('td:first-child');
+        return correoTd.textContent === correo;
+      });
+
+      if (filaExistente) {
+        actualizarFilaExistente(filaExistente, edad, tipoEmpleado, otrosDatos);
+      } else {
+        agregarFila(correo, edad, tipoEmpleado, otrosDatos);
+      }
+
+      formulario.reset();
+      submitButton.disabled = true;
+    }
+
+    function obtenerOtrosDatosSegunTipoEmpleado(tipoEmpleado) {
+      if (tipoEmpleado === 'vendedor') {
+        const ventas = parseInt(ventasInput.value);
+        const montoVendido = parseFloat(montoVendidoInput.value);
+        return `Ventas: ${ventas}, Monto Vendido: ${montoVendido.toFixed(2)}`;
+      } else if (tipoEmpleado === 'encargado') {
+        const empleadosCargo = parseInt(empleadosCargoInput.value);
+        return `Empleados a Cargo: ${empleadosCargo}`;
+      } else if (tipoEmpleado === 'supervisor') {
+        const localesAdministrados = parseInt(localesAdministradosInput.value);
+        const descripcionDesempeno = descripcionDesempenoInput.value;
+        return `Locales Administrados: ${localesAdministrados}, Descripción: ${descripcionDesempeno}`;
+      } else {
+        return '';
+      }
+    }
+
+    function actualizarFilaExistente(fila, edad, tipoEmpleado, otrosDatos) {
+      const edadTd = fila.querySelector('td:nth-child(2)');
+      const tipoEmpleadoTd = fila.querySelector('td:nth-child(3)');
+      const otrosDatosTd = fila.querySelector('td:nth-child(4)');
+
+      edadTd.textContent = edad;
+      tipoEmpleadoTd.textContent = tipoEmpleado;
+      otrosDatosTd.textContent = otrosDatos;
+    }
+
+    function agregarFila(correo, edad, tipoEmpleado, otrosDatos) {
+      const fila = document.createElement('tr');
+      const correoTd = document.createElement('td');
+      const edadTd = document.createElement('td');
+      const tipoEmpleadoTd = document.createElement('td');
+      const otrosDatosTd = document.createElement('td');
+
+      correoTd.textContent = correo;
+      edadTd.textContent = edad;
+      tipoEmpleadoTd.textContent = tipoEmpleado;
+      otrosDatosTd.textContent = otrosDatos;
+
+      fila.appendChild(correoTd);
+      fila.appendChild(edadTd);
+      fila.appendChild(tipoEmpleadoTd);
+      fila.appendChild(otrosDatosTd);
+
+      tablaDatosBody.appendChild(fila);
+      tablaDatos.style.display = 'table';
+    }
+
+    function habilitarBotonSubmit() {
+      const errores = formulario.querySelectorAll('.error-message');
+
+      for (let i = 0; i < errores.length; i++) {
+        if (errores[i].textContent !== '') {
+          submitButton.disabled = true;
+          return;
+        }
+      }
+
+      submitButton.disabled = false;
+    }
+
+    correoInput.addEventListener('input', habilitarBotonSubmit);
+    edadInput.addEventListener('input', habilitarBotonSubmit);
+    tipoEmpleadoInput.addEventListener('change', habilitarBotonSubmit);
+    ventasInput.addEventListener('input', habilitarBotonSubmit);
+    montoVendidoInput.addEventListener('input', habilitarBotonSubmit);
+    empleadosCargoInput.addEventListener('input', habilitarBotonSubmit);
+    localesAdministradosInput.addEventListener('input', habilitarBotonSubmit);
+    descripcionDesempenoInput.addEventListener('input', habilitarBotonSubmit);
+  </script>
+</body>
+</html>

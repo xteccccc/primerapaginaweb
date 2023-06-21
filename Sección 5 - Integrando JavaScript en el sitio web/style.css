@@ -1,0 +1,35 @@
+body{
+    background-color:rgb(248, 204, 84); /*Establece el color del fondo*/
+    color: rgb(158, 46, 37);
+}
+h1{
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-size: 36px;
+    text-align: center;
+}
+p{
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-size: 18px;
+    padding: 10px;
+    margin: 20px;
+}
+.container{
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+.colum{
+    width: 33%;
+    padding: 10px;
+    text-align: center;
+}
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 10px;
+}
+  
+.column {
+    flex: 1;
+    padding: 10px;
+}

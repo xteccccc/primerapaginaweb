@@ -1,0 +1,70 @@
+<!-- Paso 1: Crear un nuevo archivo HTML llamado "ejercicio-7.html" -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ejercicio 7</title>
+</head>
+<body>
+  <!-- Paso 3: Crear una etiqueta <ol> para la lista numerada -->
+  <ol id="lista-paises">
+    <!-- Paso 4: Crear cinco elementos <li> con botones y nombre de país -->
+    <li>
+      <button class="bajar">Bajar</button>
+      <span>Argentina</span>
+      <button class="subir">Subir</button>
+    </li>
+    <li>
+      <button class="bajar">Bajar</button>
+      <span>Brasil</span>
+      <button class="subir">Subir</button>
+    </li>
+    <li>
+      <button class="bajar">Bajar</button>
+      <span>Chile</span>
+      <button class="subir">Subir</button>
+    </li>
+    <li>
+      <button class="bajar">Bajar</button>
+      <span>España</span>
+      <button class="subir">Subir</button>
+    </li>
+    <li>
+      <button class="bajar">Bajar</button>
+      <span>Francia</span>
+      <button class="subir">Subir</button>
+    </li>
+  </ol>
+
+  <script>
+    // Paso 6: Seleccionar los botones "subir" y "bajar" del documento
+    var botonesSubir = document.querySelectorAll('.subir');
+    var botonesBajar = document.querySelectorAll('.bajar');
+
+    // Paso 7: Recorrer los botones utilizando un bucle o método de iteración
+    botonesSubir.forEach(function(botonSubir) {
+      // Paso 9: Asignar función al evento "click" para subir una posición
+      botonSubir.addEventListener('click', function() {
+        var elementoPadre = this.parentNode; // Obtener el elemento <li> contenedor
+        var elementoAnterior = elementoPadre.previousElementSibling; // Obtener el elemento <li> anterior
+
+        if (elementoAnterior) {
+          elementoPadre.parentNode.insertBefore(elementoPadre, elementoAnterior); // Intercambiar posiciones
+        }
+      });
+    });
+
+    botonesBajar.forEach(function(botonBajar) {
+      // Paso 8: Asignar función al evento "click" para bajar una posición
+      botonBajar.addEventListener('click', function() {
+        var elementoPadre = this.parentNode; // Obtener el elemento <li> contenedor
+        var elementoSiguiente = elementoPadre.nextElementSibling; // Obtener el elemento <li> siguiente
+
+        if (elementoSiguiente) {
+          elementoPadre.parentNode.insertBefore(elementoSiguiente, elementoPadre); // Intercambiar posiciones
+        }
+      });
+    });
+  </script>
+</body>
+</html>
